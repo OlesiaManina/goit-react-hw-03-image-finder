@@ -14,7 +14,8 @@ export class App extends React.Component {
     id: null, 
     largeImageURL: null,
     isLoading: false,
-    showModal: false
+    showModal: false,
+    loadMore: null,
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -28,12 +29,15 @@ export class App extends React.Component {
 }
 
    onUpdate = async () => {
-    const {pageNumber, imgName} = this.state;
+    const {pageNumber, imgName, loadMore} = this.state;
     try {
-      this.setState({images: [], isLoading: true})
-      const fetchedImages = await imagesAPI.fetchImages(pageNumber, imgName);
-      this.setState((prevState) => ({images: [...prevState.images, ...fetchedImages]})
-  )
+      this.setState({isLoading: true})
+      const response = await imagesAPI.fetchImages(pageNumber, imgName);
+      const totalHits = response.data.totalHits;
+      const fetchedImages = response.data.hits;
+      this.setState((prevState) => ({images: [...prevState.images, ...fetchedImages], 
+          loadMore: pageNumber < Math.ceil(totalHits / 12)})
+    )
     } catch (error) {
       console.log(error);
     } finally {
@@ -42,7 +46,11 @@ export class App extends React.Component {
   }
 
   onLoadMore = () => {
-    this.setState((prevState) => ({pageNumber: prevState.pageNumber + 1}))
+    this.setState((prevState) => {
+      if (prevState.images.length !== 0) {
+        return ({pageNumber: prevState.pageNumber + 1})
+      }
+    })
   }
 
   // reset = () => {
@@ -67,7 +75,7 @@ export class App extends React.Component {
 
 
   render() {
-    const {images, isLoading, showModal, id, largeImageURL} = this.state;
+    const {images, isLoading, showModal, id, largeImageURL, loadMore} = this.state;
     return (
       <div>
       <Searchbar onSubmit={this.formSubmitHendler}/>
@@ -80,7 +88,7 @@ export class App extends React.Component {
       />}
       <ImageGallery images={images} onClick={this.openModal}/>
       {showModal && (<Modal onClose={this.toggleModal}><img src={largeImageURL} alt={id} width="600"/></Modal>)}
-      {images.length !== 0? <Button onClick={this.onLoadMore}/> : ''}
+      {loadMore? <Button onClick={this.onLoadMore}/> : ''}
       </div>
     );
   }

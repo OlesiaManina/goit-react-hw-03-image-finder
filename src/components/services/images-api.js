@@ -14,8 +14,7 @@ async function fetchImages (pageNumber, imgName) {
     })
 
     const response = await axios.get(`${BASE_URL}?key=${API_KEY}&${searchParams}`);
-    const fetchedImages = response.data.hits;
-    return fetchedImages;
+    return response;
 }
 
 const api = {fetchImages};
