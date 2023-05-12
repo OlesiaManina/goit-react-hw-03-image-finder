@@ -36,8 +36,8 @@ export class App extends React.Component {
       const totalHits = response.data.totalHits;
       const fetchedImages = response.data.hits;
       this.setState((prevState) => ({images: [...prevState.images, ...fetchedImages], 
-          loadMore: pageNumber < Math.ceil(totalHits / 12)})
-    )
+          loadMore: pageNumber < Math.ceil(totalHits / 12)}))
+    console.log(loadMore);
     } catch (error) {
       console.log(error);
     } finally {
